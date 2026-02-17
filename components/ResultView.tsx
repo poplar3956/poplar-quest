@@ -38,12 +38,14 @@ const ResultView: React.FC<ResultViewProps> = ({ result, onReset, isReadOnly = f
 
   const rarityColors = {
     [Rarity.UR]: "text-amber-500",
+    [Rarity.SSR]: "text-pink-500",
     [Rarity.SR]: "text-indigo-600",
     [Rarity.R]: "text-emerald-600"
   };
 
   const rarityBenefits = {
     [Rarity.UR]: "★一次選考パス★",
+    [Rarity.SSR]: "特別オファー確約",
     [Rarity.SR]: "送迎付き見学会",
     [Rarity.R]: "スペシャルグッズ"
   };

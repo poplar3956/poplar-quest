@@ -13,6 +13,7 @@ export interface Question {
 
 export enum Rarity {
   UR = 'UR',
+  SSR = 'SSR',
   SR = 'SR',
   R = 'R'
 }

@@ -19,7 +19,7 @@ export function calculateResult(answers: number[], questions: Question[]): Diagn
   answers.forEach((optionIdx, qIdx) => {
     const question = questions[qIdx];
     const option = question.options[optionIdx];
-    
+
     // RIASECポイントの集計
     Object.entries(option.points).forEach(([type, val]) => {
       riasecScores[type as Riasec] += val!;
@@ -34,17 +34,35 @@ export function calculateResult(answers: number[], questions: Question[]): Diagn
 
   // スコア算出（15問、最大シンクロ効果10とした場合の相対評価 0-100）
   // 15問中、最高シンクロ率を100%に調整
-  const maxPossibleSync = 150; 
-  const score = Math.min(Math.round((totalSynchroEffect / maxPossibleSync) * 100), 100);
+  // スコア算出（15問、最大シンクロ効果10とした場合の相対評価 0-100）
+  const maxPossibleSync = 150;
+  const rawScore = Math.min(Math.round((totalSynchroEffect / maxPossibleSync) * 100), 100);
 
   // レア度判定（スコア連動型に変更）
+  // 修正：ユーザーフィードバックにより緩和 & 演出用スコア補正 (2026-02-17)
+  // UR: 80点以上 (表示95-100)
+  // SR: 60点以上 (表示80-94)
+  // R:  60点未満 (表示0-79)
+
   let rarity: Rarity;
-  if (score >= 92) {
+  let score: number;
+
+  if (rawScore >= 80) {
     rarity = Rarity.UR;
-  } else if (score >= 82) {
+    // 80-100 を 95-100 にマッピング
+    score = 95 + Math.round((rawScore - 80) * (5 / 20));
+  } else if (rawScore >= 70) {
+    rarity = Rarity.SSR;
+    // 70-79 を 85-94 にマッピング
+    score = 85 + Math.round((rawScore - 70) * (9 / 9));
+  } else if (rawScore >= 55) {
     rarity = Rarity.SR;
+    // 55-69 を 70-84 にマッピング
+    score = 70 + Math.round((rawScore - 55) * (14 / 14));
   } else {
     rarity = Rarity.R;
+    // 0-54 を 0-69 にマッピング
+    score = Math.round(rawScore * (69 / 55));
   }
 
   const sortedTypes = Object.entries(riasecScores).sort((a, b) => {
@@ -78,15 +96,15 @@ export function calculateResult(answers: number[], questions: Question[]): Diagn
   if (primaryType === 'S') departments.push("グループホーム", "デイサービス");
   if (primaryType === 'E') departments.push("介護付き有料老人ホーム", "人事部");
   if (primaryType === 'C') departments.push("経理部", "総務部");
-  
+
   const uniqueDepts = Array.from(new Set(departments)).slice(0, 2);
   if (uniqueDepts.length === 0) uniqueDepts.push("特別養護老人ホーム");
 
   // Career Plan
   const careerPlan: CareerMilestone[] = [
-    { 
-      year: "1年目", 
-      title: "ケアスタッフ", 
+    {
+      year: "1年目",
+      title: "ケアスタッフ",
       salary: "270,000円",
       description: "池田さつき会の全職員が通る道。現場での経験が、将来どの部署に行ってもあなたの最強の武器になります。",
       icon: "🌱"
